@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ssdbgo // import "github.com/lynkdb/ssdbgo"
+package ssdbgo
 
 import (
 	"fmt"
