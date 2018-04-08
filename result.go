@@ -123,6 +123,14 @@ func (r *Result) KvEach(fn func(key, value ResultBytes)) int {
 	return r.KvLen()
 }
 
+func (r *Result) KvMap() map[string]ResultBytes{
+	kvMap := make(map[string]ResultBytes, r.KvLen())
+	for i := 1; i < len(r.Items); i += 2 {
+		kvMap[r.Items[i-1].String()] = r.Items[i]
+	}
+	return kvMap
+}
+
 // Json returns the map that marshals from the reply bytes as json in response .
 func (r *Result) JsonDecode(v interface{}) error {
 	return r.bytex().JsonDecode(v)
@@ -136,12 +144,12 @@ func (rd ResultBytes) Bytes() []byte {
 }
 
 func (rd ResultBytes) String() string {
-	return string(rd)
+	return B2s(rd)
 }
 
 func (rd ResultBytes) Bool() bool {
 	if len(rd) > 0 {
-		if b, err := strconv.ParseBool(string(rd)); err == nil {
+		if b, err := strconv.ParseBool(B2s(rd)); err == nil {
 			return b
 		}
 	}
@@ -167,7 +175,7 @@ func (rd ResultBytes) Int32() int32 {
 
 func (rd ResultBytes) Int64() int64 {
 	if len(rd) > 0 {
-		if i64, err := strconv.ParseInt(string(rd), 10, 64); err == nil {
+		if i64, err := strconv.ParseInt(B2s(rd), 10, 64); err == nil {
 			return i64
 		}
 	}
@@ -193,7 +201,7 @@ func (rd ResultBytes) Uint32() uint32 {
 
 func (rd ResultBytes) Uint64() uint64 {
 	if len(rd) > 0 {
-		if i64, err := strconv.ParseUint(string(rd), 10, 64); err == nil {
+		if i64, err := strconv.ParseUint(B2s(rd), 10, 64); err == nil {
 			return i64
 		}
 	}
@@ -211,7 +219,7 @@ func (rd ResultBytes) Float64() float64 {
 		return 0
 	}
 
-	if f64, err := strconv.ParseFloat(string(rd), 64); err == nil {
+	if f64, err := strconv.ParseFloat(B2s(rd), 64); err == nil {
 		return f64
 	}
 
