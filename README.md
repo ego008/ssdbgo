@@ -1,5 +1,7 @@
 # ssdbgo
 
+This repository is forked from github.com/lynkdb/ssdbgo
+
 ssdbgo is a Go Client for SSDB (http://ssdb.io).
 
 Some features include
