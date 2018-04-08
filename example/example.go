@@ -69,6 +69,14 @@ func main() {
 			fmt.Println("\t", key, value)
 		})
 	}
+	
+	// API::KvMap()
+	if rs := conn.Cmd("multi_get", "aa", "bb"); rs.OK() {
+		fmt.Println("multi_get OK")
+		for k, v := range rs.KvMap() {
+			fmt.Println("\t", k, v.String())
+		}
+	}
 
 	if rs := conn.Cmd("scan", "aa", "cc", 10); rs.OK() {
 		fmt.Println("scan OK")
