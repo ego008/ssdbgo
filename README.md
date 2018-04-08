@@ -1,6 +1,6 @@
 # ssdbgo
 
-This repository is forked from github.com/lynkdb/ssdbgo
+This repository is forked from [lynkdb/ssdbgo](https://github.com/lynkdb/ssdbgo)
 
 ssdbgo is a Go Client for SSDB (http://ssdb.io).
 
