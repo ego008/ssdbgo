@@ -228,7 +228,7 @@ func (c *Client) parse() []ResultBytes {
 			}
 		}
 
-		size, err := strconv.Atoi(string(p))
+		size, err := strconv.Atoi(B2s(p))
 		if err != nil || size < 0 {
 			return nil
 		}
