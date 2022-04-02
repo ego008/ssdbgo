@@ -47,6 +47,12 @@ func NewConnector(cfg Config) (*Connector, error) {
 		}
 	}
 
+	if cfg.CmdRetryNum < 1 {
+		cfg.CmdRetryNum = 1
+	} else if cfg.CmdRetryNum > 10 {
+		cfg.CmdRetryNum = 10
+	}
+
 	if cfg.Timeout < 3 {
 		cfg.Timeout = 3
 	} else if cfg.Timeout > 600 {
@@ -101,7 +107,7 @@ func (cr *Connector) Cmd(args ...interface{}) *Result {
 
 	var rpl *Result
 
-	for try := 1; try <= 3; try++ {
+	for try := 1; try <= cr.config.CmdRetryNum; try++ {
 
 		rpl = cn.Cmd(args...)
 		if rpl.Status != ResultFail {
@@ -113,7 +119,7 @@ func (cr *Connector) Cmd(args ...interface{}) *Result {
 		if cn0, err := dialTimeout(cr.ctype, cr.clink); err == nil {
 
 			cn = cn0
-			cn.sock.SetDeadline(time.Now().Add(cr.ctimeout))
+			_ = cn.sock.SetDeadline(time.Now().Add(cr.ctimeout))
 
 			if cr.config.Auth != "" {
 				cn.Cmd("auth", cr.config.Auth)
@@ -130,7 +136,7 @@ func (cr *Connector) Close() {
 
 	for i := 0; i < cr.config.MaxConn; i++ {
 		cn, _ := cr.pull()
-		cn.Close()
+		_ = cn.Close()
 	}
 }
 

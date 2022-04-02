@@ -54,8 +54,8 @@ func (b *Batch) Cmd(args ...interface{}) {
 func (b *Batch) Exec() ([]*Result, error) {
 
 	var (
-		rpls            = []*Result{}
-		cmds            = []batch_cmds{}
+		rpls      []*Result
+		cmds      []batch_cmds
 		cmds_size int64 = 0
 	)
 
@@ -105,8 +105,8 @@ func (b *Batch) Exec() ([]*Result, error) {
 	for _, bcmd := range cmds {
 
 		tton := time.Now().Add(tto)
-		cn.sock.SetReadDeadline(tton)
-		cn.sock.SetWriteDeadline(tton)
+		_ = cn.sock.SetReadDeadline(tton)
+		_ = cn.sock.SetWriteDeadline(tton)
 
 		if _, err := cn.sock.Write(bcmd.req); err != nil {
 
@@ -126,13 +126,9 @@ func (b *Batch) Exec() ([]*Result, error) {
 			resp, err := cn.recv()
 
 			if err != nil {
-
 				r.Status = err.Error()
-
 			} else if len(resp) < 1 {
-
 				r.Status = ResultFail
-
 			} else {
 
 				switch resp[0].String() {
@@ -141,9 +137,7 @@ func (b *Batch) Exec() ([]*Result, error) {
 				}
 
 				if r.Status == ResultOK {
-
 					for k, v := range resp {
-
 						if k > 0 {
 							r.Items = append(r.Items, v)
 						}

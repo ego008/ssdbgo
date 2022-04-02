@@ -123,7 +123,7 @@ func (r *Result) KvEach(fn func(key, value ResultBytes)) int {
 	return r.KvLen()
 }
 
-func (r *Result) KvMap() map[string]ResultBytes{
+func (r *Result) KvMap() map[string]ResultBytes {
 	kvMap := make(map[string]ResultBytes, r.KvLen())
 	for i := 1; i < len(r.Items); i += 2 {
 		kvMap[r.Items[i-1].String()] = r.Items[i]
@@ -131,12 +131,27 @@ func (r *Result) KvMap() map[string]ResultBytes{
 	return kvMap
 }
 
-// Json returns the map that marshals from the reply bytes as json in response .
+func (r *Result) KvList() (ls []*ResultEntry) {
+	for i := 1; i < len(r.Items); i += 2 {
+		ls = append(ls, &ResultEntry{
+			Key:   r.Items[i-1],
+			Value: r.Items[i],
+		})
+	}
+	return
+}
+
+type ResultEntry struct {
+	Key   ResultBytes
+	Value ResultBytes
+}
+
+// JsonDecode returns the map that marshals from the reply bytes as json in response .
 func (r *Result) JsonDecode(v interface{}) error {
 	return r.bytex().JsonDecode(v)
 }
 
-// Universal Bytes
+// ResultBytes Universal Bytes
 type ResultBytes []byte
 
 func (rd ResultBytes) Bytes() []byte {
@@ -156,7 +171,6 @@ func (rd ResultBytes) Bool() bool {
 	return false
 }
 
-// int
 func (rd ResultBytes) Int() int {
 	return int(rd.Int64())
 }
@@ -182,7 +196,6 @@ func (rd ResultBytes) Int64() int64 {
 	return 0
 }
 
-// unsigned int
 func (rd ResultBytes) Uint() uint {
 	return uint(rd.Uint64())
 }
@@ -208,7 +221,6 @@ func (rd ResultBytes) Uint64() uint64 {
 	return 0
 }
 
-// float
 func (rd ResultBytes) Float32() float32 {
 	return float32(rd.Float64())
 }

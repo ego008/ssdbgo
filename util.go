@@ -1,7 +1,9 @@
 package ssdbgo
 
 import (
+	"encoding/binary"
 	"reflect"
+	"strconv"
 	"unsafe"
 )
 
@@ -21,4 +23,47 @@ func S2b(s string) []byte {
 		Cap:  sh.Len,
 	}
 	return *(*[]byte)(unsafe.Pointer(&bh))
+}
+
+// DS2b returns an 8-byte big endian representation of Digit string
+// v ("123456") -> uint64(123456) -> 8-byte big endian.
+func DS2b(v string) []byte {
+	i, err := strconv.ParseUint(v, 10, 64)
+	if err != nil {
+		return []byte("")
+	}
+	return I2b(i)
+}
+
+// B2ds return a Digit string of v
+// v (8-byte big endian) -> uint64(123456) -> "123456".
+func B2ds(v []byte) string {
+	return strconv.FormatUint(binary.BigEndian.Uint64(v), 10)
+}
+
+// DS2i returns uint64 of Digit string
+// v ("123456") -> uint64(123456).
+func DS2i(v string) uint64 {
+	i, err := strconv.ParseUint(v, 10, 64)
+	if err != nil {
+		return uint64(0)
+	}
+	return i
+}
+
+// I2b returns an 8-byte big endian representation of v
+// v uint64(123456) -> 8-byte big endian.
+func I2b(v uint64) []byte {
+	b := make([]byte, 8)
+	binary.BigEndian.PutUint64(b, v)
+	return b
+}
+
+// B2i return an int64 of v
+// v (8-byte big endian) -> uint64(123456).
+func B2i(v []byte) uint64 {
+	if len(v) < 8 {
+		return 0
+	}
+	return binary.BigEndian.Uint64(v)
 }

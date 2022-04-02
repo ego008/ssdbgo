@@ -50,17 +50,27 @@ func (c *Client) Cmd(args ...interface{}) *Result {
 
 	if err := c.send(args); err != nil {
 		r.Status = ResultFail
+		r.Items = []ResultBytes{[]byte(err.Error())}
 		return r
 	}
 
 	resp, err := c.recv()
 	if err != nil || len(resp) < 1 {
+		r.Status = ResultFail
+		if err != nil {
+			r.Items = []ResultBytes{[]byte(err.Error())}
+		} else {
+			r.Items = []ResultBytes{[]byte("network error")}
+		}
 		return r
 	}
 
 	switch resp[0].String() {
 	case ResultOK, ResultNotFound, ResultError, ResultFail, ResultClientError:
 		r.Status = resp[0].String()
+	default:
+		r.Status = ResultFail
+		r.Items = []ResultBytes{}
 	}
 
 	if r.Status == ResultOK && len(resp) > 1 {
@@ -203,7 +213,7 @@ func (c *Client) recv() ([]ResultBytes, error) {
 func (c *Client) parse() []ResultBytes {
 
 	var (
-		resp   = []ResultBytes{}
+		resp   []ResultBytes
 		buf    = c.recv_buf.Bytes()
 		idx    = 0
 		offset = 0
@@ -236,7 +246,7 @@ func (c *Client) parse() []ResultBytes {
 			break
 		}
 
-		resp = append(resp, ResultBytes(bytesClone(buf[offset:offset+size])))
+		resp = append(resp, bytesClone(buf[offset:offset+size]))
 		offset += size + 1
 	}
 

@@ -17,17 +17,18 @@ package main
 import (
 	"fmt"
 
-	"github.com/ego008/ssdbgo"
+	"ssdbgo"
 )
 
 func main() {
 
 	conn, err := ssdbgo.NewConnector(ssdbgo.Config{
 		Host:    "127.0.0.1",
-		Port:    6380,
+		Port:    8887,
 		Timeout: 3, // timeout in second, default to 10
 		MaxConn: 1, // max connection number, default to 1
 		// Auth:    "foobared",
+		CmdRetryNum: 1,
 	})
 	if err != nil {
 		fmt.Println("Connect Error:", err)
@@ -69,12 +70,21 @@ func main() {
 			fmt.Println("\t", key, value)
 		})
 	}
-	
+
 	// API::KvMap()
 	if rs := conn.Cmd("multi_get", "aa", "bb"); rs.OK() {
 		fmt.Println("multi_get OK")
 		for k, v := range rs.KvMap() {
 			fmt.Println("\t", k, v.String())
+		}
+	}
+
+	// API::KvList()
+	if rs := conn.Cmd("scan", "aa", "zz", 10); rs.OK() {
+		fmt.Println("KvList OK")
+		rss := rs.KvList()
+		for _, v := range rss {
+			fmt.Println("\t", v.Key.String(), v.Value.String())
 		}
 	}
 
